@@ -37,6 +37,18 @@ body {
   z-index: 2;
 }
 
+#design-icon {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top));
+  left: 12px;
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 2;
+}
+
 
 #hint {
   position: fixed;

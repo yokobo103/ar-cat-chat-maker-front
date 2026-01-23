@@ -21,9 +21,16 @@
     <a-assets>
       <a-asset-item id="cat-gltf" src="./models/cat2.glb"></a-asset-item>
     </a-assets>
+    <!--
+      Tracking marker (pattern marker).
+      この追跡マーカーとは独立して、装飾用猫アイコン (markers/design.png) は
+      名刺・紙面レイアウトではマーカーの外側（上部や横）に配置する想定。
+      装飾アイコンはAR認識には使わず、文脈補助のみを担う。
+    -->
     <a-marker
-      id="hiro-marker"
-      preset="hiro"
+      id="tracking-marker"
+      type="pattern"
+      url="./markers/tracking-marker.patt"
       smooth="true"
       smoothCount="12"
       smoothTolerance="0.02"
@@ -42,6 +49,17 @@
 
   <!-- UI -->
   <div id="hud">
+    <!--
+      装飾用猫アイコン（AR認識に使わない）。
+      画面上の参考配置。名刺/紙面では追跡用マーカーの外側に置く想定。
+    -->
+    <img
+      id="design-icon"
+      src="./markers/design.png"
+      width="32"
+      height="32"
+      alt="装飾用の猫アイコン（AR認識には使用しない）"
+    />
     <div id="chatbar">
       <input id="q" type="text" placeholder="猫に質問してみて…" autocomplete="off" />
       <button id="send">送信</button>
