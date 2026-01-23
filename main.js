@@ -344,9 +344,15 @@ if (catEntity) {
 const logEl = document.getElementById("log");
 const fxEl  = document.getElementById("fx");
 
+function logMarkerEvent(type) {
+  const ts = new Date().toISOString();
+  console.log(`[marker ${type}] ${ts}`);
+}
+
 if (markerEl) {
   markerEl.addEventListener("markerFound", () => {
     markerVisible = true;
+    logMarkerEvent("found");
     if (cat) {
       cat.visible = true;
     }
@@ -358,6 +364,7 @@ if (markerEl) {
   });
   markerEl.addEventListener("markerLost", () => {
     markerVisible = false;
+    logMarkerEvent("lost");
     if (cat) {
       cat.visible = false;
     }
