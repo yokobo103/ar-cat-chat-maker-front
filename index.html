@@ -7,11 +7,38 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <!-- カメラ -->
-  <video id="cam" autoplay playsinline muted></video>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 
-  <!-- Three.js -->
-  <canvas id="gl"></canvas>
+  <!-- AR Scene -->
+  <a-scene
+    id="ar-scene"
+    embedded
+    vr-mode-ui="enabled: false"
+    renderer="colorManagement: true; physicallyCorrectLights: true"
+    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; canvasWidth: 1280; canvasHeight: 960; maxDetectionRate: 30;"
+  >
+    <a-assets>
+      <a-asset-item id="cat-gltf" src="./models/cat2.glb"></a-asset-item>
+    </a-assets>
+    <a-marker
+      id="hiro-marker"
+      preset="hiro"
+      smooth="true"
+      smoothCount="12"
+      smoothTolerance="0.02"
+      smoothThreshold="6"
+    >
+      <a-entity
+        id="cat-entity"
+        gltf-model="#cat-gltf"
+        position="0 0 0"
+        rotation="0 0 0"
+        scale="0.6 0.6 0.6"
+      ></a-entity>
+    </a-marker>
+    <a-entity camera></a-entity>
+  </a-scene>
 
   <!-- UI -->
   <div id="hud">
@@ -35,17 +62,6 @@
       <div id="log"></div>
     </div>
   </div>
-
-
-  <script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
-    "three/examples/jsm/": "https://unpkg.com/three@0.161.0/examples/jsm/"
-  }
-}
-</script>
-
 
 
   <script type="module" src="./main.js"></script>

@@ -1,7 +1,7 @@
 html, body {
   margin: 0;
   height: 100%;
-  background: #000;
+  background: transparent;
   overflow: hidden;
   font-family: -apple-system, system-ui, "Hiragino Sans", "Noto Sans JP", sans-serif;
 }
@@ -11,22 +11,30 @@ body {
 }
 
 
-#cam, #gl{
-  position: absolute;
-  left: 0; top: 0;
+#arjs-video{
+  position: fixed;
+  inset: 0;
   width: 100vw;
   height: var(--vvh);
-  object-fit: cover; /* videoに重要 */
+  object-fit: cover;
+  z-index: 0;
 }
 
-
-#gl { pointer-events: none; } /* UIの操作を邪魔しない */
+#ar-scene{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: var(--vvh);
+  pointer-events: none;
+  z-index: 1;
+}
 
 #hud {
   position: fixed;
   inset: 0;
   height: var(--vvh);
   pointer-events: none;
+  z-index: 2;
 }
 
 
@@ -89,7 +97,7 @@ body {
 html, body{
   height: var(--vvh);
 }
-#cam, #gl{
+#ar-scene{
   height: var(--vvh);
 }
 

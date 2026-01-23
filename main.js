@@ -1,7 +1,3 @@
-import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-
-
 const API_BASE = "https://ar-cat-chat-api.vercel.app";
 
 async function callLLM(message){
@@ -20,8 +16,9 @@ async function callLLM(message){
 
 
 
-const video = document.getElementById("cam");
-const canvas = document.getElementById("gl");
+const sceneEl = document.getElementById("ar-scene");
+const markerEl = document.getElementById("hiro-marker");
+const catEntity = document.getElementById("cat-entity");
 const bubble = document.getElementById("bubble");
 const input = document.getElementById("q");
 const sendBtn = document.getElementById("send");
@@ -29,6 +26,18 @@ const newChatBtn = document.getElementById("new-chat");
 const faceEl = document.getElementById("face");
 const flowerLayer = document.getElementById("flowers");
 const BASE = { w: window.innerWidth, h: window.innerHeight };
+
+function setupCameraVideoLayer() {
+  const video = document.getElementById("arjs-video");
+  if (!video) {
+    requestAnimationFrame(setupCameraVideoLayer);
+    return;
+  }
+  video.setAttribute("playsinline", "");
+  video.setAttribute("muted", "");
+  video.setAttribute("autoplay", "");
+  video.setAttribute("disablepictureinpicture", "");
+}
 
 function isKeyboardActive() {
   return document.body.classList.contains("kbd") || document.activeElement === input;
@@ -68,15 +77,6 @@ input.addEventListener("blur", () => {
   }
 });
 
-async function startCamera() {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: "environment" } },
-    audio: false
-  });
-  video.srcObject = stream;
-  await video.play();
-}
-
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 const MAX_HISTORY_PAIRS = 5;
@@ -112,6 +112,11 @@ function updateStateFx() {
 }
 
 function renderStateFx() {
+  if (!markerVisible) {
+    fxEl.classList.add("hidden");
+    fxEl.dataset.mode = "";
+    return;
+  }
   if (fxEl.dataset.mode === "burst") return;
   if (!stateFxEmoji) {
     fxEl.classList.add("hidden");
@@ -124,6 +129,7 @@ function renderStateFx() {
 }
 
 function showFx(emoji, ms = 900) {
+  if (!markerVisible) return;
   fxEl.textContent = emoji;
   fxEl.classList.remove("hidden");
   fxEl.dataset.mode = "burst";
@@ -143,8 +149,11 @@ function showFx(emoji, ms = 900) {
 const FLOWER_EMOJIS = ["🌸", "🌼", "❀", "🌺"];
 
 function getCatScreenPosition(yOffset) {
-  if (!cat) return null;
-  const p = cat.position.clone();
+  if (!cat || !markerVisible) return null;
+  const camera = getSceneCamera();
+  if (!camera || !window.THREE) return null;
+  const p = new window.THREE.Vector3();
+  cat.getWorldPosition(p);
   p.y += yOffset;
   p.project(camera);
   return {
@@ -154,7 +163,7 @@ function getCatScreenPosition(yOffset) {
 }
 
 function showFlowers() {
-  if (!flowerLayer || !cat) return;
+  if (!flowerLayer || !cat || !markerVisible) return;
   if (isKeyboardOpen()) return;
 
   const anchor = getCatScreenPosition(0.56);
@@ -210,6 +219,7 @@ function showFlowersWhenReady({ maxWait = 1400 } = {}) {
 }
 
 function showFace(emoji, ms = 900) {
+  if (!markerVisible) return;
   faceEl.textContent = emoji;
   faceEl.classList.remove("hidden");
   const until = performance.now() + ms;
@@ -292,67 +302,81 @@ function detectClarify(text) {
     || t.includes("？");
 }
 
-// ===== Three.js =====
-const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.01, 50);
-camera.position.set(0, 0, 1.5);
-
-// light
-scene.add(new THREE.HemisphereLight(0xffffff, 0x223344, 1.25));
-const dir = new THREE.DirectionalLight(0xffffff, 0.85);
-dir.position.set(1.2, 1.8, 1.0);
-scene.add(dir);
-
+// ===== A-Frame / AR.js =====
 let cat = null;
 let mood = "neutral"; // neutral | happy | angry | sad | surprised
 let moodUntil = 0;
 let popUntil = 0;     // ぴょん演出の終了時刻
-let catAnchor = new THREE.Vector3(-0.48, 0.02, -1.2); // 初期位置（カメラ前方）
+let catAnchor = null;
 let t0 = performance.now();
+let markerVisible = false;
 
-// 猫ロード
-const loader = new GLTFLoader();
-loader.load("./models/cat2.glb", (gltf) => {
-  cat = gltf.scene;
-  cat.position.copy(catAnchor);
-  cat.scale.setScalar(0.6);
-  scene.add(cat);
+function getSceneCamera() {
+  return sceneEl?.camera ?? null;
+}
 
-  // ちょい材質調整（真っ黒回避）
-  cat.traverse((o) => {
-    if (o.isMesh && o.material) {
-      o.material.metalness = Math.min(0.2, o.material.metalness ?? 0.2);
-      o.material.roughness = Math.max(0.6, o.material.roughness ?? 0.6);
+if (sceneEl) {
+  sceneEl.addEventListener("loaded", () => {
+    if (!catAnchor && window.THREE) {
+      catAnchor = new window.THREE.Vector3(0, 0.02, 0);
     }
   });
-}, undefined, (err) => {
-  console.error(err);
-  alert("cat2.glb の読み込みに失敗。パスとファイル名を確認してね。");
-});
-
-function resize(force = false) {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
-
-  // 入力中の「高さだけ変わる」リサイズは無視（猫を動かさない）
-  if (!force && isKeyboardResize(w, h)) return;
-
-  BASE.w = w;
-  BASE.h = h;
-
-  renderer.setSize(w, h, false);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
 }
-window.addEventListener("resize", () => resize(false));
-resize(true);
+
+if (catEntity) {
+  catEntity.addEventListener("model-loaded", (event) => {
+    cat = catEntity.object3D;
+    cat.visible = markerVisible;
+    if (!catAnchor && window.THREE) {
+      catAnchor = new window.THREE.Vector3(0, 0.02, 0);
+    }
+    const model = event.detail.model;
+    model.traverse((o) => {
+      if (o.isMesh && o.material) {
+        o.material.metalness = Math.min(0.2, o.material.metalness ?? 0.2);
+        o.material.roughness = Math.max(0.6, o.material.roughness ?? 0.6);
+      }
+    });
+  });
+}
 
 
 const logEl = document.getElementById("log");
 const fxEl  = document.getElementById("fx");
+
+function logMarkerEvent(type) {
+  const ts = new Date().toISOString();
+  console.log(`[marker ${type}] ${ts}`);
+}
+
+if (markerEl) {
+  markerEl.addEventListener("markerFound", () => {
+    markerVisible = true;
+    logMarkerEvent("found");
+    if (cat) {
+      cat.visible = true;
+    }
+    if (bubble.textContent) {
+      bubble.classList.remove("hidden");
+    }
+    updateBubblePosition();
+    renderStateFx();
+  });
+  markerEl.addEventListener("markerLost", () => {
+    markerVisible = false;
+    logMarkerEvent("lost");
+    if (cat) {
+      cat.visible = false;
+    }
+    bubble.classList.add("hidden");
+    fxEl.classList.add("hidden");
+    faceEl.classList.add("hidden");
+    if (flowerLayer) {
+      flowerLayer.classList.add("hidden");
+      flowerLayer.textContent = "";
+    }
+  });
+}
 
 function addLog(role, text){
   const row = document.createElement("div");
@@ -368,12 +392,16 @@ function addLog(role, text){
 
 function setBubble(text){
   bubble.textContent = formatBubbleText(text);
-  bubble.classList.remove("hidden");
+  if (markerVisible) {
+    bubble.classList.remove("hidden");
+  } else {
+    bubble.classList.add("hidden");
+  }
   updateBubblePosition();
 }
 
 function updateBubblePosition() {
-  if (!cat) return;
+  if (!cat || !markerVisible) return;
   if (isKeyboardActive()) return; // ←追加
 
   // 吹き出し
@@ -422,7 +450,11 @@ function pop(ms = 300) {
 
 // 猫の疑似アニメ（Blender不要）
 function animateCat(time) {
-  if (!cat) return;
+  if (!cat || !markerVisible) return;
+  if (!catAnchor && window.THREE) {
+    catAnchor = new window.THREE.Vector3(0, 0.02, 0);
+  }
+  if (!catAnchor) return;
 
   const now = performance.now();
   const t = (time - t0) / 1000;
@@ -664,7 +696,6 @@ function loop(time) {
   updateConversationState();
   animateCat(time);
   updateBubblePosition();
-  renderer.render(scene, camera);
 }
 
 function updateVVH(force = false) {
@@ -707,7 +738,7 @@ if (window.visualViewport) {
 }
 
 (async function boot() {
-  await startCamera();
+  setupCameraVideoLayer();
   loop(performance.now());
   setBubble("やあ。質問してみて（例：ARで吹き出しってどうする？）");
 })();
