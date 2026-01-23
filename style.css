@@ -1,7 +1,7 @@
 html, body {
   margin: 0;
   height: 100%;
-  background: #000;
+  background: transparent;
   overflow: hidden;
   font-family: -apple-system, system-ui, "Hiragino Sans", "Noto Sans JP", sans-serif;
 }
@@ -11,13 +11,22 @@ body {
 }
 
 
+#arjs-video{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: var(--vvh);
+  object-fit: cover;
+  z-index: 0;
+}
+
 #ar-scene{
   position: fixed;
   inset: 0;
   width: 100vw;
   height: var(--vvh);
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
 }
 
 #hud {
@@ -25,6 +34,7 @@ body {
   inset: 0;
   height: var(--vvh);
   pointer-events: none;
+  z-index: 2;
 }
 
 
