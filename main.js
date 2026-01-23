@@ -27,6 +27,18 @@ const faceEl = document.getElementById("face");
 const flowerLayer = document.getElementById("flowers");
 const BASE = { w: window.innerWidth, h: window.innerHeight };
 
+function setupCameraVideoLayer() {
+  const video = document.getElementById("arjs-video");
+  if (!video) {
+    requestAnimationFrame(setupCameraVideoLayer);
+    return;
+  }
+  video.setAttribute("playsinline", "");
+  video.setAttribute("muted", "");
+  video.setAttribute("autoplay", "");
+  video.setAttribute("disablepictureinpicture", "");
+}
+
 function isKeyboardActive() {
   return document.body.classList.contains("kbd") || document.activeElement === input;
 }
@@ -719,6 +731,7 @@ if (window.visualViewport) {
 }
 
 (async function boot() {
+  setupCameraVideoLayer();
   loop(performance.now());
   setBubble("やあ。質問してみて（例：ARで吹き出しってどうする？）");
 })();
