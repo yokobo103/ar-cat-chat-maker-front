@@ -11,16 +11,14 @@ body {
 }
 
 
-#cam, #gl{
-  position: absolute;
-  left: 0; top: 0;
+#ar-scene{
+  position: fixed;
+  inset: 0;
   width: 100vw;
   height: var(--vvh);
-  object-fit: cover; /* videoに重要 */
+  pointer-events: none;
+  z-index: 0;
 }
-
-
-#gl { pointer-events: none; } /* UIの操作を邪魔しない */
 
 #hud {
   position: fixed;
@@ -89,7 +87,7 @@ body {
 html, body{
   height: var(--vvh);
 }
-#cam, #gl{
+#ar-scene{
   height: var(--vvh);
 }
 
