@@ -11,13 +11,11 @@
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.js"></script>
 
   <!-- AR Scene -->
-  <a-scene
-    id="ar-scene"
-    embedded
-    vr-mode-ui="enabled: false"
-    renderer="colorManagement: true; physicallyCorrectLights: true"
-    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; canvasWidth: 1280; canvasHeight: 960; maxDetectionRate: 30;"
-  >
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: true;"
+    >
+
     <a-assets>
       <a-asset-item id="cat-gltf" src="./models/cat2.glb"></a-asset-item>
     </a-assets>
