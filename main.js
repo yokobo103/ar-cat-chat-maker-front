@@ -17,7 +17,7 @@ async function callLLM(message){
 
 
 const sceneEl = document.getElementById("ar-scene");
-const markerEl = document.getElementById("hiro-marker");
+const markerEl = document.getElementById("design-marker");
 const catEntity = document.getElementById("cat-entity");
 const bubble = document.getElementById("bubble");
 const input = document.getElementById("q");
