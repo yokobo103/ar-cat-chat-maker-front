@@ -35,12 +35,19 @@
       smoothThreshold="6"
     >
       <a-entity
-        id="cat-entity"
-        gltf-model="#cat-gltf"
-        position="0 0 0"
-        rotation="0 0 0"
-        scale="0.6 0.6 0.6"
-      ></a-entity>
+        id="catRoot"
+        position="0 -0.02 0.06"
+        rotation="-90 0 0"
+        scale="5 5 5"
+      >
+        <!--
+          猫がマーカーより前に飛び出さず、机上で起きた姿勢に見えるように調整。
+          position: 手前に出すぎない程度にZを小さく/高さを微調整。
+          rotation: 机に置いたマーカーを上から見ても立って見える向き。
+          scale: モデルの高さ基準で約5倍。
+        -->
+        <a-entity id="cat-entity" gltf-model="#cat-gltf"></a-entity>
+      </a-entity>
     </a-marker>
     <a-entity camera></a-entity>
   </a-scene>
