@@ -308,6 +308,7 @@ let mood = "neutral"; // neutral | happy | angry | sad | surprised
 let moodUntil = 0;
 let popUntil = 0;     // ぴょん演出の終了時刻
 let catAnchor = null;
+let catBase = null;   // モデルの基準姿勢/サイズ（ひっくり返り対策）
 let t0 = performance.now();
 let markerVisible = false;
 
@@ -325,10 +326,20 @@ if (sceneEl) {
 
 if (catEntity) {
   catEntity.addEventListener("model-loaded", (event) => {
-    cat = catEntity.object3D;
+    // 実モデルを基準にして回転を上書きしないようにする
+    cat = event.detail.model;
     cat.visible = markerVisible;
     if (!catAnchor && window.THREE) {
+      // 微調整ポイント: 位置合わせ（高さ/前後）を変えたい時はここ
       catAnchor = new window.THREE.Vector3(0, 0.02, 0);
+    }
+    // ひっくり返り防止: モデルの初期姿勢/スケールを保存
+    if (cat && !catBase) {
+      catBase = {
+        position: cat.position.clone(),
+        rotation: cat.rotation.clone(),
+        scale: cat.scale.clone()
+      };
     }
     const model = event.detail.model;
     model.traverse((o) => {
@@ -459,6 +470,8 @@ function animateCat(time) {
   const now = performance.now();
   const t = (time - t0) / 1000;
 
+  // Tuning: adjust idle sway amounts via baseY/baseRotX/baseRotY below.
+
   // moodの期限が切れたらneutralへ戻す
   if (mood !== "neutral" && now > moodUntil) {
     mood = "neutral";
@@ -477,6 +490,7 @@ function animateCat(time) {
   let ry = baseRotY;
   let shakeX = 0;
   let shakeY = 0;
+  // Tuning: overall model size.
   let scale = 0.6;
 
   // ぴょん（pop）
@@ -531,14 +545,26 @@ function animateCat(time) {
   }
 
   // 反映
-  cat.position.x = catAnchor.x + shakeX;
-  cat.position.y = y + shakeY;
-  cat.position.z = catAnchor.z;
+  const basePos = catBase?.position ?? catAnchor;
+  const baseRot = catBase?.rotation ?? { x: 0, y: 0, z: 0, order: "XYZ" };
+  const baseScale = catBase?.scale ?? { x: 1, y: 1, z: 1 };
 
-  cat.rotation.x = rx;
-  cat.rotation.y = ry;
+  cat.position.x = basePos.x + catAnchor.x + shakeX;
+  cat.position.y = basePos.y + y + shakeY;
+  cat.position.z = basePos.z + catAnchor.z;
 
-  cat.scale.setScalar(scale);
+  cat.rotation.set(
+    baseRot.x + rx,
+    baseRot.y + ry,
+    baseRot.z,
+    baseRot.order || "XYZ"
+  );
+
+  cat.scale.set(
+    baseScale.x * scale,
+    baseScale.y * scale,
+    baseScale.z * scale
+  );
 }
 
 
