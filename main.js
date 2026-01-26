@@ -406,10 +406,10 @@ function updateBubblePosition() {
 
   // 吹き出し
   if (!bubble.classList.contains("hidden")) {
-    const pos = getCatScreenPosition(0.45);
+    const pos = getCatScreenPosition(0.6);
     if (pos) {
-      bubble.style.left = `${pos.x + 40}px`;
-      bubble.style.top = `${pos.y}px`;
+      bubble.style.left = `${pos.x + 90}px`;
+      bubble.style.top = `${pos.y - 55}px`;
     }
   }
 
