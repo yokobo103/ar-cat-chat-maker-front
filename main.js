@@ -312,6 +312,14 @@ let catBase = null;   // モデルの基準姿勢/サイズ（ひっくり返り
 let t0 = performance.now();
 let markerVisible = false;
 
+// Micro-tuning: adjust these if the model is still flipped or offset.
+// rot is radians (Math.PI = 180deg).
+const CAT_TUNE = {
+  rot: { x: Math.PI, y: 0, z: 0 }, // flip fix (try 0 or Math.PI)
+  pos: { x: 0, y: 0, z: 0 },       // small position offsets
+  scale: 1                          // extra scale multiplier
+};
+
 function getSceneCamera() {
   return sceneEl?.camera ?? null;
 }
@@ -549,21 +557,21 @@ function animateCat(time) {
   const baseRot = catBase?.rotation ?? { x: 0, y: 0, z: 0, order: "XYZ" };
   const baseScale = catBase?.scale ?? { x: 1, y: 1, z: 1 };
 
-  cat.position.x = basePos.x + catAnchor.x + shakeX;
-  cat.position.y = basePos.y + y + shakeY;
-  cat.position.z = basePos.z + catAnchor.z;
+  cat.position.x = basePos.x + catAnchor.x + CAT_TUNE.pos.x + shakeX;
+  cat.position.y = basePos.y + y + CAT_TUNE.pos.y + shakeY;
+  cat.position.z = basePos.z + catAnchor.z + CAT_TUNE.pos.z;
 
   cat.rotation.set(
-    baseRot.x + rx,
-    baseRot.y + ry,
-    baseRot.z,
+    baseRot.x + CAT_TUNE.rot.x + rx,
+    baseRot.y + CAT_TUNE.rot.y + ry,
+    baseRot.z + CAT_TUNE.rot.z,
     baseRot.order || "XYZ"
   );
 
   cat.scale.set(
-    baseScale.x * scale,
-    baseScale.y * scale,
-    baseScale.z * scale
+    baseScale.x * scale * CAT_TUNE.scale,
+    baseScale.y * scale * CAT_TUNE.scale,
+    baseScale.z * scale * CAT_TUNE.scale
   );
 }
 
