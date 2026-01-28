@@ -20,6 +20,15 @@ const sceneEl = document.getElementById("ar-scene");
 const markerEl = document.getElementById("design-marker");
 const catEntity = document.getElementById("cat-entity");
 const bubble = document.getElementById("bubble");
+const bubbleContent = (() => {
+  if (!bubble) return null;
+  const existing = bubble.querySelector(".bubble-content");
+  if (existing) return existing;
+  const el = document.createElement("div");
+  el.className = "bubble-content";
+  bubble.appendChild(el);
+  return el;
+})();
 const input = document.getElementById("q");
 const sendBtn = document.getElementById("send");
 const newChatBtn = document.getElementById("new-chat");
@@ -315,8 +324,8 @@ let markerVisible = false;
 // Micro-tuning: adjust these if the model is still flipped or offset.
 // rot is radians (Math.PI = 180deg).
 const CAT_TUNE = {
-  rot: { x: Math.PI, y: 0, z: 0 }, // flip fix (try 0 or Math.PI)
-  pos: { x: 0, y: 0, z: 0 },       // small position offsets
+  rot: { x: Math.PI * 0.5, y: 0, z: 0}, // flip fix (try 0 or Math.PI)
+  pos: { x: 0.03, y: 0.03, z: -0.02 },       // small position offsets
   scale: 1                          // extra scale multiplier
 };
 
@@ -375,7 +384,7 @@ if (markerEl) {
     if (cat) {
       cat.visible = true;
     }
-    if (bubble.textContent) {
+    if (bubbleContent?.textContent) {
       bubble.classList.remove("hidden");
     }
     updateBubblePosition();
@@ -410,7 +419,8 @@ function addLog(role, text){
 }
 
 function setBubble(text){
-  bubble.textContent = formatBubbleText(text);
+  if (!bubbleContent) return;
+  bubbleContent.textContent = formatBubbleText(text);
   if (markerVisible) {
     bubble.classList.remove("hidden");
   } else {
@@ -499,7 +509,7 @@ function animateCat(time) {
   let shakeX = 0;
   let shakeY = 0;
   // Tuning: overall model size.
-  let scale = 0.6;
+  let scale = 0.3;
 
   // ぴょん（pop）
   if (now < popUntil) {
