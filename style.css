@@ -276,3 +276,10 @@ html, body{
 #new-chat:active{
   transform: translateY(1px);
 }
+
+
+.arjs-permission-ui,
+.arjs-permission-ui * {
+  pointer-events: auto !important;
+  z-index: 99999 !important;
+}
