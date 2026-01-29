@@ -325,7 +325,7 @@ let markerVisible = false;
 // rot is radians (Math.PI = 180deg).
 const CAT_TUNE = {
   rot: { x: Math.PI * 0.5, y: 0, z: 0}, // flip fix (try 0 or Math.PI)
-  pos: { x: 0.03, y: 0.03, z: -0.02 },       // small position offsets
+  pos: { x: -0.3, y: 0.0, z: 0.05 },       // small position offsets
   scale: 1                          // extra scale multiplier
 };
 
