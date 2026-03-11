@@ -12,12 +12,13 @@
 
   <!-- AR Scene -->
   <a-scene
-    id="ar-scene"
-    embedded
-    vr-mode-ui="enabled: false"
-    renderer="colorManagement: true; physicallyCorrectLights: true"
-    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; canvasWidth: 1280; canvasHeight: 960; maxDetectionRate: 30;"
-  >
+  id="ar-scene"
+  embedded
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  renderer="colorManagement: true; physicallyCorrectLights: true"
+  arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false; sourceWidth: 1280; sourceHeight: 960; displayWidth: 1280; displayHeight: 960; canvasWidth: 1280; canvasHeight: 960; maxDetectionRate: 30;"
+>
     <a-assets>
       <a-asset-item id="cat-gltf" src="./models/cat2.glb"></a-asset-item>
     </a-assets>
@@ -49,7 +50,7 @@
         <a-entity id="cat-entity" gltf-model="#cat-gltf"></a-entity>
       </a-entity>
     </a-marker>
-    <a-entity camera></a-entity>
+    <a-entity camera look-controls="enabled: false"></a-entity>
   </a-scene>
 
   <!-- UI -->
