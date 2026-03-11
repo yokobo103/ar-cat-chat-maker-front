@@ -36,6 +36,26 @@ const faceEl = document.getElementById("face");
 const flowerLayer = document.getElementById("flowers");
 const BASE = { w: window.innerWidth, h: window.innerHeight };
 
+function applyViewportToArLayers() {
+  const { w, h } = getViewportSize();
+
+  const targets = [
+    document.getElementById("arjs-video"),
+    document.querySelector("#ar-scene"),
+    document.querySelector(".a-canvas"),
+    document.querySelector(".a-canvas-container"),
+    document.querySelector("a-scene canvas")
+  ].filter(Boolean);
+
+  for (const el of targets) {
+    el.style.width = `${w}px`;
+    el.style.height = `${h}px`;
+    el.style.left = "0px";
+    el.style.top = "0px";
+    el.style.position = "fixed";
+  }
+}
+
 function setupCameraVideoLayer() {
   const video = document.getElementById("arjs-video");
   if (!video) {
@@ -46,6 +66,7 @@ function setupCameraVideoLayer() {
   video.setAttribute("muted", "");
   video.setAttribute("autoplay", "");
   video.setAttribute("disablepictureinpicture", "");
+  applyViewportToArLayers();
 }
 
 function isKeyboardActive() {
@@ -742,16 +763,31 @@ function loop(time) {
   updateBubblePosition();
 }
 
+function getViewportSize() {
+  const vv = window.visualViewport;
+  if (vv) {
+    return {
+      w: Math.round(vv.width),
+      h: Math.round(vv.height)
+    };
+  }
+  return {
+    w: window.innerWidth,
+    h: window.innerHeight
+  };
+}
+
 function updateVVH(force = false) {
-  const w = window.innerWidth;
-  const h = window.innerHeight;
+  const { w, h } = getViewportSize();
 
   if (!force && isKeyboardResize(w, h)) return;
 
   BASE.w = w;
   BASE.h = h;
+  document.documentElement.style.setProperty("--vvw", `${w}px`);
   document.documentElement.style.setProperty("--vvh", `${h}px`);
 }
+
 
 function updateKeyboardOffset() {
   if (!window.visualViewport) {
@@ -775,9 +811,15 @@ updateKeyboardOffset();
 window.addEventListener("resize", () => {
   updateVVH(false);
   updateKeyboardOffset();
+  applyViewportToArLayers();
 });
+
 if (window.visualViewport) {
-  window.visualViewport.addEventListener("resize", updateKeyboardOffset);
+  window.visualViewport.addEventListener("resize", () => {
+    updateVVH(false);
+    updateKeyboardOffset();
+    applyViewportToArLayers();
+  });
   window.visualViewport.addEventListener("scroll", updateKeyboardOffset);
 }
 
