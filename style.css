@@ -11,10 +11,18 @@ body {
 }
 
 
+:root{
+  --vvw: 100vw;
+  --vvh: 100vh;
+  --panelH: calc(var(--vvh) * 0.34);
+  --kbd: 0px;
+}
+
 #arjs-video{
   position: fixed;
-  inset: 0;
-  width: 100vw;
+  left: 0;
+  top: 0;
+  width: var(--vvw);
   height: var(--vvh);
   object-fit: cover;
   z-index: 0;
@@ -22,12 +30,14 @@ body {
 
 #ar-scene{
   position: fixed;
-  inset: 0;
-  width: 100vw;
+  left: 0;
+  top: 0;
+  width: var(--vvw);
   height: var(--vvh);
   pointer-events: none;
   z-index: 1;
 }
+
 
 #hud {
   position: fixed;
@@ -299,11 +309,11 @@ a-scene,
 .a-canvas,
 .a-canvas-container,
 canvas,
-video,
-#arjs-video {
+video {
   position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: var(--vvw) !important;
   height: var(--vvh) !important;
 }
 
