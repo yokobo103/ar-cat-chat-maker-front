@@ -283,3 +283,39 @@ html, body{
   pointer-events: auto !important;
   z-index: 99999 !important;
 }
+
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+a-scene,
+#a-scene,
+.a-scene,
+.a-canvas,
+.a-canvas-container,
+canvas,
+video,
+#arjs-video {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: var(--vvh) !important;
+}
+
+#arjs-video,
+video {
+  object-fit: cover !important;
+}
+
+#a-scene,
+.a-scene,
+.a-canvas,
+.a-canvas-container,
+canvas {
+  background: transparent !important;
+}
